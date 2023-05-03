@@ -11,6 +11,8 @@ export default function App() {
   const [galleryPermission, setGalleryPermission] = React.useState(null);
   const [capturedImage, setCapturedImage] = React.useState(null);
   const [cameraVisible, setCameraVisible] = React.useState(true);
+  const [cameraDisplayStyle, setCameraDisplayStyle] = React.useState('flex');
+
 
 
   //request the necessary permissions for camera and image picker:
@@ -41,7 +43,7 @@ export default function App() {
     // Set the cameraVisible state back to true when the image picker is closed
     setCameraVisible(true);
 
-    if (!result.cancelled) {
+    if (!result.canceled) {
       setCapturedImage(result.base64);
     }
   }
@@ -92,7 +94,7 @@ export default function App() {
           <TouchableOpacity 
             style={styles.button} 
             onPress={() => {
-              setCameraVisible(false)
+              setCameraDisplayStyle("none");
               pickImage();
               }}
           >
