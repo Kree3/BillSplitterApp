@@ -10,10 +10,12 @@ export default function App() {
   const [cameraPermission, setCameraPermission] = React.useState(null);
   const [galleryPermission, setGalleryPermission] = React.useState(null);
   const [capturedImage, setCapturedImage] = React.useState(null);
+  const [cameraVisible, setCameraVisible] = React.useState(false);
+
 
   //request the necessary permissions for camera and image picker:
-  async function requestPermissions() {
-    const { status: cameraStatus } = await Camera.requestPermissionsAsync();
+  async function requestCameraPermissionsAsync() {
+    const { status: cameraStatus } = await Camera.requestCameraPermissionsAsync();
     setCameraPermission(cameraStatus === 'granted');
 
     const {
@@ -23,7 +25,7 @@ export default function App() {
   }
 
   React.useEffect(() => {
-    requestPermissions();
+    requestCameraPermissionsAsync();
   }, []);
 
   //handle the image picking process
@@ -67,7 +69,7 @@ export default function App() {
           style={{ flex: 1, width: "100%", height: "50%" }}
           type={Camera.Constants.Type.back}
           ref={(ref) => {
-            this.camera = ref;
+            camera = ref;
           }}
         >
           <View
