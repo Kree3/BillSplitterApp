@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, Buttonl, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, Buttonl, TouchableOpacity, CameraRoll, Platform, Image } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import * as ImagePicker from 'expo-image-picker';
 import { Camera } from 'expo-camera';
@@ -12,6 +12,11 @@ export default function App() {
   const [capturedImage, setCapturedImage] = React.useState(null);
   const [cameraVisible, setCameraVisible] = React.useState(true);
   const [cameraDisplayStyle, setCameraDisplayStyle] = React.useState('flex');
+
+  //When the picture gets taken
+  const [reviewMode, setReviewMode] = React.useState(false);
+  const [capturedImageURI, setCapturedImageURI] = React.useState(null);
+
 
 
 
@@ -50,19 +55,29 @@ export default function App() {
 
   //takes a picture using the provided camera object, saves the captured image in base64 format, and hides the camera view.
   async function captureImage(camera) {
-    if (!camera) {
-      return;
+    if (camera) {
+      const options = { quality: 1, exif: true };
+      const data = await camera.takePictureAsync(options);
+      console.log(data);
+      setCapturedImageURI(data.uri);
+      setCapturedImage(data.base64);
+      setReviewMode(true);
     }
-  
-    const photo = await camera.takePictureAsync({ base64: true });
-    setCapturedImage(photo.base64);
-    setCameraVisible(false);
+  }
+
+  function confirmImage() {
+    setCapturedImage(capturedImageURI);
+    setReviewMode(false);
+  }
+
+  function retryImage() {
+    setCapturedImageURI(null);
+    setReviewMode(false);
   }
   
+  
+  
   // Other functions and code......................................................................................
-
-
-
 
   return (
     <View style={styles.container}>
@@ -87,10 +102,15 @@ export default function App() {
             paddingBottom: 20,
           }}
         >
+        
         <View style={styles.cameraButtonContainer}>
-          <TouchableOpacity style={styles.button} onPress={() => captureImage(camera)}>
+          <TouchableOpacity 
+            style={styles.button} 
+            onPress={() => 
+              captureImage(camera)}>
             <Text style={styles.buttonText}>Capture</Text>
           </TouchableOpacity>
+
           <TouchableOpacity 
             style={styles.button} 
             onPress={() => {
@@ -105,6 +125,23 @@ export default function App() {
         </View>
       </Camera>
     )}
+
+  {reviewMode ? (
+    <View style={styles.reviewContainer}>
+      <Image 
+        source={{ uri: `data:image/jpeg;base64,${capturedImage}` }}
+        style={styles.reviewImage} />
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.button} onPress={retryImage}>
+          <Text style={styles.buttonText}>Retry</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={confirmImage}>
+          <Text style={styles.buttonText}>Confirm</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  ) : null}
+
 
       <StatusBar style="auto" />
     </View>
@@ -141,6 +178,20 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 16,
+  },
+
+  reviewContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  reviewImage: {
+    width: '100%',
+    height: '50%',
+    resizeMode: 'contain',
+    marginBottom: 20,
+    zIndex: 1,
   },
   
 });
