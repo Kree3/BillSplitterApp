@@ -10,7 +10,7 @@ export default function App() {
   const [cameraPermission, setCameraPermission] = React.useState(null);
   const [galleryPermission, setGalleryPermission] = React.useState(null);
   const [capturedImage, setCapturedImage] = React.useState(null);
-  const [cameraVisible, setCameraVisible] = React.useState(false);
+  const [cameraVisible, setCameraVisible] = React.useState(true);
 
 
   //request the necessary permissions for camera and image picker:
@@ -37,7 +37,10 @@ export default function App() {
       quality: 1,
       base64: true,
     });
-  
+
+    // Set the cameraVisible state back to true when the image picker is closed
+    setCameraVisible(true);
+
     if (!result.cancelled) {
       setCapturedImage(result.base64);
     }
@@ -61,52 +64,46 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <Text>Hello, BillSplitter!</Text>
 
-      {/*checks if cameraVisible is true. If it is, it renders the camera view with the capture and close buttons.*/}
-      {cameraVisible ? (
-        <Camera
-          style={{ flex: 1, width: "100%", height: "50%" }}
-          type={Camera.Constants.Type.back}
-          ref={(ref) => {
-            camera = ref;
+
+    {/*checks if cameraVisible is true. If it is, it renders the camera view with the capture and close buttons.*/}
+    {cameraVisible && (
+      <Camera
+        style={{ flex: 1, width: "100%", height: "50%" }}
+        type={Camera.Constants.Type.back}
+        ref={(ref) => {
+          camera = ref;
+        }}
+      >
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: "transparent",
+            flexDirection: "row",
+            justifyContent: "center",
+            alignItems: "flex-end",
+            paddingBottom: 20,
           }}
         >
-          <View
-            style={{
-              flex: 1,
-              backgroundColor: "transparent",
-              flexDirection: "row",
-              justifyContent: "center",
-              alignItems: "flex-end",
-              paddingBottom: 20,
-            }}
+        <View style={styles.cameraButtonContainer}>
+          <TouchableOpacity style={styles.button} onPress={() => captureImage(camera)}>
+            <Text style={styles.buttonText}>Capture</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.button} 
+            onPress={() => {
+              setCameraVisible(false)
+              pickImage();
+              }}
           >
-          <View style={styles.cameraButtonContainer}>
-            <TouchableOpacity style={styles.button} onPress={() => captureImage(camera)}>
-              <Text style={styles.buttonText}>Capture</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={() => setCameraVisible(false)}>
-              <Text style={styles.buttonText}>Close</Text>
-            </TouchableOpacity>
-          </View>
+            <Text style={styles.buttonText}>Camera Roll</Text>
+          </TouchableOpacity>
+        </View>
 
-          </View>
-        </Camera>
-      ) : (
-        <>
-        {/* If cameraVisible is false, it renders the "Pick an image" and "Open Camera" buttons.*/}
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.button} onPress={pickImage}>
-              <Text style={styles.buttonText}>Pick an image</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={() => setCameraVisible(true)}>
-              <Text style={styles.buttonText}>Open Camera</Text>
-            </TouchableOpacity>
-          </View>
+        </View>
+      </Camera>
+    )}
 
-        </>
-      )}
       <StatusBar style="auto" />
     </View>
   );
