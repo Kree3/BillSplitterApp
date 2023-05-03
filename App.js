@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, Button } from 'react-native';
+import { StyleSheet, Text, View, Buttonl, TouchableOpacity } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import * as ImagePicker from 'expo-image-picker';
 import { Camera } from 'expo-camera';
@@ -82,15 +82,29 @@ export default function App() {
               paddingBottom: 20,
             }}
           >
-            <Button title="Capture" onPress={() => captureImage(this.camera)} />
-            <Button title="Close" onPress={() => setCameraVisible(false)} />
+          <View style={styles.cameraButtonContainer}>
+            <TouchableOpacity style={styles.button} onPress={() => captureImage(camera)}>
+              <Text style={styles.buttonText}>Capture</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={() => setCameraVisible(false)}>
+              <Text style={styles.buttonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+
           </View>
         </Camera>
       ) : (
         <>
         {/* If cameraVisible is false, it renders the "Pick an image" and "Open Camera" buttons.*/}
-          <Button title="Pick an image" onPress={pickImage} />
-          <Button title="Open Camera" onPress={() => setCameraVisible(true)} />
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.button} onPress={pickImage}>
+              <Text style={styles.buttonText}>Pick an image</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={() => setCameraVisible(true)}>
+              <Text style={styles.buttonText}>Open Camera</Text>
+            </TouchableOpacity>
+          </View>
+
         </>
       )}
       <StatusBar style="auto" />
@@ -106,4 +120,28 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%',
+    marginTop: 20,
+  },
+  cameraButtonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%',
+    paddingBottom: 20,
+  },
+  button: {
+    backgroundColor: '#1AABE6',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 4,
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  
 });
