@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import { StyleSheet, Text, View, Buttonl, TouchableOpacity, CameraRoll, Platform, Image } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import * as ImagePicker from 'expo-image-picker';
@@ -7,15 +7,17 @@ import { Camera } from 'expo-camera';
 
 
 export default function App() {
-  const [cameraPermission, setCameraPermission] = React.useState(null);
-  const [galleryPermission, setGalleryPermission] = React.useState(null);
-  const [capturedImage, setCapturedImage] = React.useState(null);
-  const [cameraVisible, setCameraVisible] = React.useState(true);
-  const [cameraDisplayStyle, setCameraDisplayStyle] = React.useState('flex');
+  const [cameraPermission, setCameraPermission] = useState(null);
+  const [galleryPermission, setGalleryPermission] = useState(null);
+  const [capturedImage, setCapturedImage] = useState(null);
+  const [cameraVisible, setCameraVisible] = useState(true);
+  const [cameraDisplayStyle, setCameraDisplayStyle] = useState('flex');
+  const [reviewMode, setReviewMode] = useState(false);
+  const [capturedImageURI, setCapturedImageURI] = useState(null);
 
-  //When the picture gets taken
-  const [reviewMode, setReviewMode] = React.useState(false);
-  const [capturedImageURI, setCapturedImageURI] = React.useState(null);
+  const camera = useRef(null);
+
+
 
 
 
@@ -54,16 +56,24 @@ export default function App() {
   }
 
   //takes a picture using the provided camera object, saves the captured image in base64 format, and hides the camera view.
-  async function captureImage(camera) {
-    if (camera) {
-      const options = { quality: 1, exif: true };
-      const data = await camera.takePictureAsync(options);
-      console.log(data);
-      setCapturedImageURI(data.uri);
-      setCapturedImage(data.base64);
-      setReviewMode(true);
+  const takePicture = async () => {
+    try {
+      if (camera.current) {
+        await camera.current.takePictureAsync({ quality: 0.5, base64: true, exif: true, onPictureSaved: onPictureSaved.current });
+      }
+    } catch (error) {
+      console.error('Error taking picture:', error);
     }
-  }
+  };
+  
+  
+  const onPictureSaved = (photo) => {
+    console.log(photo);
+    setCapturedImageURI(photo.uri);
+    setCapturedImage(photo.base64);
+    setReviewMode(true);
+  };
+  
 
   function confirmImage() {
     setCapturedImage(capturedImageURI);
@@ -87,10 +97,8 @@ export default function App() {
     {cameraVisible && (
       <Camera
         style={{ flex: 1, width: "100%", height: "50%" }}
-        type={Camera.Constants.Type.back}
-        ref={(ref) => {
-          camera = ref;
-        }}
+        type={this.state.type}
+        ref={(ref) => { this.camera = ref }} 
       >
         <View
           style={{
@@ -104,12 +112,13 @@ export default function App() {
         >
         
         <View style={styles.cameraButtonContainer}>
-          <TouchableOpacity 
-            style={styles.button} 
-            onPress={() => 
-              captureImage(camera)}>
-            <Text style={styles.buttonText}>Capture</Text>
-          </TouchableOpacity>
+        <TouchableOpacity 
+          style={styles.button} 
+          onPress={takePicture.current}
+>
+          <Text style={styles.buttonText}>Capture</Text>
+        </TouchableOpacity>
+
 
           <TouchableOpacity 
             style={styles.button} 
